@@ -6,6 +6,9 @@ on:
       - master
   workflow_dispatch:
 
+permissions:
+      contents: read
+      id-token: write
 env:
   PROJECT: sndotnetapp
 
@@ -13,9 +16,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     environment: Production
-    permissions:
-      contents: read
-      id-token: write
+
 
 
     steps:
