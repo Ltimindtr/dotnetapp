@@ -64,6 +64,9 @@ jobs:
       - name: Stop Azure Web App
         run: az webapp stop --name ${{ env.PROJECT }} --resource-group Snambissan
 
+      - name: Wait for 50 seconds after stopping app
+        run: sleep 50
+
       - name: Deploy to Azure App Service
         run: |
           az webapp deployment source config-zip \
