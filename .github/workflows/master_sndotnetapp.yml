@@ -9,6 +9,9 @@ on:
       - master
   workflow_dispatch:
 
+env:
+ PROJECT: sndotnetapp
+
 jobs:
   build:
     runs-on: ubuntu-latest
