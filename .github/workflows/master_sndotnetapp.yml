@@ -61,11 +61,11 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
 
-      - name: Stop Azure Web App
-        run: az webapp stop --name ${{ env.PROJECT }} --resource-group Snambissan
+      #- name: Stop Azure Web App
+      #  run: az webapp stop --name ${{ env.PROJECT }} --resource-group Snambissan
 
-      - name: Wait for 50 seconds after stopping app
-        run: sleep 50
+      #- name: Wait for 50 seconds after stopping app
+      #  run: sleep 50
 
       - name: Deploy to Azure App Service
         run: |
@@ -74,5 +74,5 @@ jobs:
             --resource-group Snambissan \
             --src "${{ env.PROJECT }}.zip"
 
-      - name: Start Azure Web App
-        run: az webapp start --name ${{ env.PROJECT }} --resource-group Snambissan
+      #- name: Start Azure Web App
+      #  run: az webapp start --name ${{ env.PROJECT }} --resource-group Snambissan
