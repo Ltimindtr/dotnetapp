@@ -1,6 +1,3 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
 name: Build and deploy ASP.Net Core app to Azure Web App - sndotnetapp
 
 on:
@@ -10,13 +7,13 @@ on:
   workflow_dispatch:
 
 env:
- PROJECT: sndotnetapp
+  PROJECT: sndotnetapp
 
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read #This is required for actions/checkout
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -30,49 +27,45 @@ jobs:
         run: dotnet build --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
+        run: dotnet publish -c Release -o publish_output
 
+      - name: Create Zip Package
+        run: |
+          cd publish_output
+          zip -r ../${{ env.PROJECT }}.zip .
+      
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
-          name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
-  
- 
-      - name: Download Build Artifact
+          name: ${{ env.PROJECT }}-zip
+          path: ${{ env.PROJECT }}.zip
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
-          name: ${{ env.PROJECT }}-build
-          path: ${{ github.workspace }}/${{ env.PROJECT }}-build
- 
-      - name: Create Zip Package
-        run: |
-          cd "${{ github.workspace }}/${{ env.PROJECT }}-build"
-          zip -r "${{ env.PROJECT }}.zip" .
- 
+          name: ${{ env.PROJECT }}-zip
+          path: .
+
       - uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
- 
-      - name: Stop webapp
-        run: az webapp stop --name sndotnetapp --resource-group Snambissan
- 
-      # - name: Deploy
-      #   uses: azure/webapps-deploy@v3
-      #   with:
-      #     app-name: ${{ inputs.app_service_name }}
-      #     package: "${{ github.workspace }}/${{ env.PROJECT }}-build"
-      #     clean: true
- 
+
+      - name: Stop Azure Web App
+        run: az webapp stop --name ${{ env.PROJECT }} --resource-group Snambissan
+
       - name: Deploy to Azure App Service
         run: |
           az webapp deployment source config-zip \
-            --name sndotnetapp \
+            --name ${{ env.PROJECT }} \
             --resource-group Snambissan \
-            --src "${{ github.workspace }}/${{ env.PROJECT }}-build/${{ env.PROJECT }}.zip"
- 
-      - name: Start webapp
-        run: az webapp start --name sndotnetapp --resource-group Snambissan  
+            --src "${{ env.PROJECT }}.zip"
 
+      - name: Start Azure Web App
+        run: az webapp start --name ${{ env.PROJECT }} --resource-group Snambissan
