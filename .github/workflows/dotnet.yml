@@ -65,7 +65,7 @@ jobs:
       #     package: "${{ github.workspace }}/${{ env.PROJECT }}-build"
       #     clean: true
  
-      - name: Deploy to Azure App Service
+      - name: Deploy to Azure App Services
         run: |
           az webapp deployment source config-zip \
             --name sndotnetapp \
